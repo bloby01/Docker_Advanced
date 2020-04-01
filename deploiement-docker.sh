@@ -488,7 +488,7 @@ verif
 #
 vrai="1"
 alias master="ssh stagiaire@master.mon.dom" && \
-export token=`master docker swarm join-token worker` \
+export token=`master docker swarm join-token -q worker` \
 vrai="0"
 nom="recuperation des clés sur le master pour l'intégration au cluster"
 verif
