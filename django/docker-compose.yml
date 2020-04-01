@@ -1,32 +1,17 @@
 version: '3'
 services:
  weby:
-  deploy:
-   replicas: 3
-   mode: replicated
-   restart_policy:
-    condition: on-failure
-    delay: 5s
-    max_attempts: 3
-    window: 60s
-   resources:
-    limits:
-     cpus: "0.50"
-     memory: 128M
-    reservations:
-     cpus: "0.25"
-     memory: 32M
-  image: bloby01/djangoweb
-  volumes:
+   build: .
+   command: python3 manage.py runserver 0.0.0.0:8000
+   volumes:
    - django:/code
-  ports:
+   ports:
    - "8000:8000"
-  depends_on:
+   restart: always
+   depends_on:
    - ddb
  ddb:
   image: postgres
-  environment:
-  - POSTGRES_PASSWORD=toto
   restart: always
   volumes:
    - djangodb:/var/lib/postgresql/data
