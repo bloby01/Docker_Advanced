@@ -1,9 +1,9 @@
 $TTL 300
-@       IN SOA  docker.mon.dom. root.docker.mon.dom. (
+@       IN SOA  master.mon.dom. root.master.mon.dom. (
               1       ; serial
               600      ; refresh
               900      ; retry
               3600      ; expire
               300 )    ; minimum
-@             NS      docker.mon.dom.
+@             NS      master.mon.dom.
 master   A       172.21.0.100
