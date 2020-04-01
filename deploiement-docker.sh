@@ -14,7 +14,7 @@
 #
 #################################################################################
 #                                                                               #
-#                       LABS  DOCKER chez HP                                    #
+#                       LABS  DOCKER Avanced                                    #
 #                                                                               #
 #                                                                               #
 #               Internet                                                        #
@@ -24,11 +24,10 @@
 #                      -------------------                                      #
 #                      |  switch  interne|--(VM) Client linux                   #
 #                      |-----------------|                                      #
-#                        |     |      |                                         #
-#                        |     |      |                                         #
-#                 (vm)worker1  |      |                                         #
-#                      (vm)worker2    |                                         #
-#                            (vm) worker3                                       #
+#                        |     |                                                #
+#                        |     |                                                #
+#                 (vm)worker1  |                                                #
+#                      (vm)worker2                                              #
 #                                                                               #
 #                                                                               #
 #                                                                               #
@@ -41,12 +40,11 @@
 # - Le système sur lequel s'exécute ce script doit être un CentOS7              #
 # - Le compte root doit etre utilisé pour exécuter ce Script                    #
 # - Le script requière que la machine master soit correctement configuré sur IP #
-#   master.mon.dom carte interne enp0s8 -> 172.21.0.100/24                      #
+#   master.mon.dom carte interne  -> 172.21.0.100/24                            #
 # - Les systèmes sont synchronisés sur le serveur de temps 1.fr.pool.ntp.org    #
 # - Les noeuds worker sont automatiquements adressé sur IP par le master        #
 # - La résolution de nom est réaliser par un serveur BIND9 sur le master        #
 # - le LABS est établie avec un maximum de trois noeuds worker                  #
-# - Le compte d'exploitation du cluster est "stagiaire avec MDP: Azerty01"      #
 #                                                                               #
 #                                                                               #
 #################################################################################
@@ -116,8 +114,6 @@ include "/etc/named/ddns.key" ;
 zone "mon.dom" IN {
         type master;
         file "mon.dom.db";
-#        also-notify {172.21.0.101;172.21.0.102;172.21.0.103;};
-#        allow-transfer {172.21.0.101;172.21.0.102;172.21.0.103;};
         allow-update {key DDNS_UPDATE;};
         allow-query { any;};
         notify yes;
@@ -125,8 +121,6 @@ zone "mon.dom" IN {
 zone "0.21.172.in-addr.arpa" IN {
         type master;
         file "172.21.0.db";
-#        also-notify {172.21.0.101;172.21.0.102;172.21.0.103;};
-#        allow-transfer {172.21.0.101;172.21.0.102;172.21.0.103;};
         allow-update {key DDNS_UPDATE;};
         allow-query { any;};
         notify yes;
@@ -142,7 +136,7 @@ namedMonDom () {
 vrai="1"
 cat <<EOF > /var/named/mon.dom.db
 \$TTL 300
-@       IN SOA  master.mon.dom root.master.mon.dom. (
+@       IN SOA  master.mon.dom. root.master.mon.dom. (
               1       ; serial
               600      ; refresh
               900      ; retry
@@ -161,7 +155,7 @@ namedRevers () {
 vrai="1"
 cat <<EOF > /var/named/172.21.0.db
 \$TTL 300
-@       IN SOA  master.mon.dom root.master.mon.dom. (
+@       IN SOA  master.mon.dom. root.master.mon.dom. (
               1       ; serial
               600      ; refresh
               900      ; retry
@@ -230,6 +224,23 @@ export node="worker"
 elif [ ${noeud} = "master" ]
 then
 vrai="1"
+clear
+echo ""
+echo "liste des interfaces réseaux disponibles:"
+echo ""
+echo "#########################################"
+echo "`ip link`"
+echo ""
+echo "#########################################"
+echo ""
+echo -n "Mettre le nom de l'interface réseaux public: "
+read eth0 && \
+echo -n "Mettre le nom de l'interface réseaux du LAN: "
+read eth1 && \
+vrai="0"
+nom="selection de la carte réseau interne"
+verif
+vrai="1"
 hostnamectl  set-hostname  ${noeud}.mon.dom && \
 export node="master" && \
 cat <<EOF > /etc/resolv.conf
@@ -253,7 +264,12 @@ verif
 #
 #
 vrai="1"
-firewall-cmd --set-default-zone trusted && \
+#firewall-cmd --set-default-zone trusted && \
+iptables -A FORWARD -i ${eth1} -j ACCEPT
+iptables -A FORWARD -o ${eth1} -j ACCEPT
+sysctl -w net.ipv4.ip_forward=1
+sysctl -p /etc/sysctl.conf
+iptables -t nat -A POSTROUTING -o ${eth0} -j MASQUERADE
 vrai="0"
 nom="regles de firewall à trusted"
 verif
@@ -352,12 +368,12 @@ verif
 # Etape 9 node master
 # configuration du NAT sur le premier master
 #
-vrai="1"
-firewall-cmd --add-masquerade && \
-firewall-cmd --permanent --add-masquerade && \
-vrai="0"
-nom="mise en place du NAT"
-verif
+#vrai="1"
+#firewall-cmd --add-masquerade && \
+#firewall-cmd --permanent --add-masquerade && \
+#vrai="0"
+#nom="mise en place du NAT"
+#verif
 #
 # Etape 10 node master
 # configuration du dhcp avec inscription dans le DNS
@@ -385,7 +401,7 @@ nom="configuration et installaiton du service docker-ee"
 #
 #
 vrai="1"
-docker swarm init --listen-addr enp0s8 --advertise-addr enp0s8
+docker swarm init --listen-addr ${eth1} --advertise-addr ${eth1}
 vrai="0"
 nom="deploiement du cluster"
 verif
