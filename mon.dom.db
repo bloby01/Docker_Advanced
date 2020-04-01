@@ -6,4 +6,4 @@ $TTL 300
               3600      ; expire
               300 )    ; minimum
 @             NS      docker.mon.dom.
-docker   A       172.21.0.100
+master   A       172.21.0.100
