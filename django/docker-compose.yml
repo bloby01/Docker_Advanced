@@ -11,11 +11,11 @@ services:
    depends_on:
    - ddb
  ddb:
-  image: postgres
-  restart: always
-  environment:
-  - POSTGRES_PASSWORD=toto
-  volumes:
+   image: postgres
+   restart: always
+   environment:
+   - POSTGRES_PASSWORD=toto
+   volumes:
    - djangodb:/var/lib/postgresql/data
 volumes:
  django:
