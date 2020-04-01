@@ -1,0 +1,9 @@
+$TTL 300
+@       IN SOA  docker.mon.dom. root.docker.mon.dom. (
+              1       ; serial
+              600      ; refresh
+              900      ; retry
+              3600      ; expire
+              300 )    ; minimum
+@             NS      docker.mon.dom.
+100        PTR     docker.mon.dom.
