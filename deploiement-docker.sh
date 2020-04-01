@@ -49,6 +49,9 @@
 #                                                                               #
 #################################################################################
 #Fonction de vérification des étapes
+#activesshroot() {
+#
+#}
 verif(){
   if [ "${vrai}" -eq "0" ]; then
     echo "Étape - ${node}- ${nom} - OK"
@@ -220,9 +223,29 @@ then
 vrai="1"
 x=0 ; until [ "${x}" -gt "0" -a "${x}" -lt "4" ] ; do echo -n "Mettez un numéro de ${noeud} à installer (1, 2 ou 3, pour ${noeud}1.mon.dom, mettre: 1 ): " ; read x ; done
 hostnamectl  set-hostname  ${noeud}${x}.mon.dom && \
+vrai="1"
+clear
+echo ""
+echo "liste des interfaces réseaux disponibles:"
+echo ""
+echo "#########################################"
+echo "`ip link`"
+echo ""
+echo "#########################################"
+echo ""
+echo -n "Mettre le nom de l'interface réseaux public: "
+read eth1 && \
+vrai="0"
+nom="selection de la carte réseau public"
+verif
 export node="worker"
 elif [ ${noeud} = "master" ]
 then
+#vrai="1"
+#activesshroot && \
+#vrai="0"
+#nom="activation du root sur ssh"
+#verif
 vrai="1"
 clear
 echo ""
@@ -243,6 +266,16 @@ verif
 vrai="1"
 hostnamectl  set-hostname  ${noeud}.mon.dom && \
 export node="master" && \
+vrai="1"
+#firewall-cmd --set-default-zone trusted && \
+iptables -A FORWARD -i ${eth1} -j ACCEPT
+iptables -A FORWARD -o ${eth1} -j ACCEPT
+sysctl -w net.ipv4.ip_forward=1
+sysctl -p /etc/sysctl.conf
+iptables -t nat -A POSTROUTING -o ${eth0} -j MASQUERADE
+vrai="0"
+nom="regles de firewall à trusted"
+verif
 cat <<EOF > /etc/resolv.conf
 domain mon.dom
 nameserver 172.21.0.100
@@ -259,20 +292,6 @@ vrai="0"
 nom="recuperation de l url de docker"
 verif
 #
-# Etape 2
-# Libre passage des flux in et out sur les interfaces réseaux
-#
-#
-vrai="1"
-#firewall-cmd --set-default-zone trusted && \
-iptables -A FORWARD -i ${eth1} -j ACCEPT
-iptables -A FORWARD -o ${eth1} -j ACCEPT
-sysctl -w net.ipv4.ip_forward=1
-sysctl -p /etc/sysctl.conf
-iptables -t nat -A POSTROUTING -o ${eth0} -j MASQUERADE
-vrai="0"
-nom="regles de firewall à trusted"
-verif
 #
 # Etape 3
 # Construction du fichier de résolution interne hosts.
@@ -434,6 +453,18 @@ fi
 ############################################################################################
 if [ "${node}" = "worker" ]
 then
+# Libre passage des flux in et out sur les interfaces réseaux
+#
+#
+vrai="1"
+#firewall-cmd --set-default-zone trusted && \
+iptables -A FORWARD -i ${eth1} -j ACCEPT
+iptables -A FORWARD -o ${eth1} -j ACCEPT
+#sysctl -w net.ipv4.ip_forward=1
+#sysctl -p /etc/sysctl.conf
+vrai="0"
+nom="regles de firewall à trusted"
+verif
 vrai="1"
 systemctl restart network && \
 vrai="0"
@@ -446,7 +477,7 @@ verif
 #
 vrai="1"
 ssh-keygen -b 4096 -t rsa -f ~/.ssh/id_rsa -P "" && \
-ssh-copy-id -i ~/.ssh/id_rsa.pub root@master.mon.dom && \
+ssh-copy-id -i ~/.ssh/id_rsa.pub stagiaire@master.mon.dom && \
 vrai="0"
 nom="configuration du ssh agent"
 verif
@@ -456,7 +487,7 @@ verif
 #
 #
 vrai="1"
-alias master="ssh root@master.mon.dom" && \
+alias master="ssh stagiaire@master.mon.dom" && \
 export token=`master docker swarm join-token worker` \
 vrai="0"
 nom="recuperation des clés sur le master pour l'intégration au cluster"
