@@ -13,6 +13,8 @@ services:
  ddb:
   image: postgres
   restart: always
+  environment:
+  - POSTGRES_PASSWORD=toto
   volumes:
    - djangodb:/var/lib/postgresql/data
 volumes:
