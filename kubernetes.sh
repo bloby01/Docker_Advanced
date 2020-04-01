@@ -134,7 +134,7 @@ verif
 vrai="1"
 mkdir  -p   /home/stagiaire/.kube && \
 cp  -i   /etc/kubernetes/admin.conf  /home/stagiaire/.kube/config && \
-chown  -R  stagiaire:stagiaire   /home/stagiaire/.kube && \
+chown  -R  stagiaire:wheel   /home/stagiaire/.kube && \
 vrai="0"
 nom="construction du compte stagiaire avec le controle de K8S"
 verif
