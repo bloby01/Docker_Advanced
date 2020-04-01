@@ -147,6 +147,8 @@ cat <<EOF > /var/named/mon.dom.db
               300 )    ; minimum
 @             NS      master.mon.dom.
 master   A       172.21.0.100
+worker1  A  172.21.0.110
+worker2  A  172.21.0.111
 EOF
 vrai="0"
 nom="namedMonDom"
@@ -166,6 +168,8 @@ cat <<EOF > /var/named/172.21.0.db
               300 )    ; minimum
 @             NS      master.mon.dom.
 100           PTR     master.mon.dom.
+110   PTR   worker1.mon.dom.
+111   PTR   worker2.mon.dom.
 EOF
 vrai="0"
 nom="namedRevers"
