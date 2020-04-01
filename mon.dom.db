@@ -7,4 +7,3 @@ $TTL 300
               300 )    ; minimum
 @             NS      docker.mon.dom.
 docker   A       172.21.0.100
-w1          CNAME   docker.mon.dom.
