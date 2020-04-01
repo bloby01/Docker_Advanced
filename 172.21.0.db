@@ -7,3 +7,5 @@ $TTL 300
               300 )    ; minimum
 @             NS      master.mon.dom.
 100        PTR     master.mon.dom.
+110   PTR   worker1.mon.dom.
+111   PTR   worker2.mon.dom.
