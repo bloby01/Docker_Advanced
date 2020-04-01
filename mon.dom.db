@@ -7,3 +7,5 @@ $TTL 300
               300 )    ; minimum
 @             NS      master.mon.dom.
 master   A       172.21.0.100
+worker1  A   172.21.0.110
+worker2  A   172.21.0.111
