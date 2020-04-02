@@ -186,7 +186,7 @@ EOF
 chmod  +x  /etc/rc.modules && \
 sysctl   -w net.bridge.bridge-nf-call-iptables=1 && \
 sysctl   -w net.bridge.bridge-nf-call-ip6tables=1 && \
-cat <<EOF > /etc/sysctl.conf
+cat <<EOF >> /etc/sysctl.conf
 net.bridge.bridge-nf-call-iptables=1
 net.bridge.bridge-nf-call-ip6tables=1
 EOF
@@ -275,7 +275,7 @@ vrai="1"
 iptables -A FORWARD -i ${eth1} -j ACCEPT
 iptables -A FORWARD -o ${eth1} -j ACCEPT
 sysctl -w net.ipv4.ip_forward=1
-sysctl -p /etc/sysctl.conf
+echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
 iptables -t nat -A POSTROUTING -o ${eth0} -j MASQUERADE
 vrai="0"
 nom="regles de firewall à trusted"
