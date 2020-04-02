@@ -46,21 +46,6 @@ EOF
 chmod  +x  /etc/rc.modules && \
 sysctl   -w net.bridge.bridge-nf-call-iptables=1 && \
 sysctl   -w net.bridge.bridge-nf-call-ip6tables=1 && \
-sysctl4=`sysctl -a | grep net.bridge.bridge-nf-call-iptables | cut -f 2 -d "="` \
-sysctl6=`sysctl -a | grep net.bridge.bridge-nf-call-ip6tables | cut -f 2 -d "="` \
-if [ "${sysctl4}" = "0" ]
-then
-cat <<EOF >> /etc/sysctl.conf
-net.bridge.bridge-nf-call-iptables=1
-EOF
-fi
-if [ "${sysctl6}" = "0" ]
-then
-cat <<EOF >> /etc/sysctl.conf
-net.bridge.bridge-nf-call-ip6tables=1
-EOF
-fi
-
 vrai="0"
 nom="moduleBr"
 }
