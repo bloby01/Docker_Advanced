@@ -46,7 +46,7 @@ EOF
 chmod  +x  /etc/rc.modules && \
 sysctl   -w net.bridge.bridge-nf-call-iptables=1 && \
 sysctl   -w net.bridge.bridge-nf-call-ip6tables=1 && \
-cat <<EOF > /etc/sysctl.conf
+cat <<EOF >> /etc/sysctl.conf
 net.bridge.bridge-nf-call-iptables=1
 net.bridge.bridge-nf-call-ip6tables=1
 EOF
