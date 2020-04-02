@@ -204,7 +204,7 @@ then
 #
 vrai="1"
 ssh-keygen -b 4096 -t rsa -f ~/.ssh/id_rsa -P "" && \
-ssh-copy-id -i ~/.ssh/id_rsa.pub root@172.21.0.100 && \
+ssh-copy-id -i ~/.ssh/id_rsa.pub stagiaire@172.21.0.100 && \
 vrai="0"
 nom="configuration du ssh agent"
 verif
@@ -214,7 +214,7 @@ verif
 #
 #
 vrai="1"
-alias master="ssh root@master.mon.dom" && \
+alias master="ssh stagiaire@master.mon.dom" && \
 export token=`master kubeadm token list | tail -1 | cut -f 1,2 -d " "` && \
 tokensha=`master openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'` && \
 export tokenca=sha256:${tokensha} && \
