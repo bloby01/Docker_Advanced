@@ -227,29 +227,12 @@ then
 vrai="1"
 x=0 ; until [ "${x}" -gt "0" -a "${x}" -lt "4" ] ; do echo -n "Mettez un numéro de ${noeud} à installer (1, 2 ou 3, pour ${noeud}1.mon.dom, mettre: 1 ): " ; read x ; done
 hostnamectl  set-hostname  ${noeud}${x}.mon.dom && \
-vrai="1"
-clear
-echo ""
-echo "liste des interfaces réseaux disponibles:"
-echo ""
-echo "#########################################"
-echo "`ip link`"
-echo ""
-echo "#########################################"
-echo ""
-echo -n "Mettre le nom de l'interface réseaux public: "
-read eth1 && \
 vrai="0"
 nom="selection de la carte réseau public"
 verif
 export node="worker"
 elif [ ${noeud} = "master" ]
 then
-#vrai="1"
-#activesshroot && \
-#vrai="0"
-#nom="activation du root sur ssh"
-#verif
 vrai="1"
 clear
 echo ""
@@ -260,23 +243,18 @@ echo "`ip link`"
 echo ""
 echo "#########################################"
 echo ""
-echo -n "Mettre le nom de l'interface réseaux public: "
-read eth0 && \
 echo -n "Mettre le nom de l'interface réseaux du LAN: "
 read eth1 && \
 vrai="0"
-nom="selection de la carte réseau interne"
+nom="Déclaration de la carte réseau interne"
 verif
 vrai="1"
 hostnamectl  set-hostname  ${noeud}.mon.dom && \
 export node="master" && \
 vrai="1"
-#firewall-cmd --set-default-zone trusted && \
-iptables -A FORWARD -i ${eth1} -j ACCEPT
-iptables -A FORWARD -o ${eth1} -j ACCEPT
-sysctl -w net.ipv4.ip_forward=1
-echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
-iptables -t nat -A POSTROUTING -o ${eth0} -j MASQUERADE
+yum install -y firewalld
+systemctl enable --now firewalld
+firewall-cmd --set-default-zone trusted && \
 vrai="0"
 nom="regles de firewall à trusted"
 verif
@@ -391,12 +369,12 @@ verif
 # Etape 9 node master
 # configuration du NAT sur le premier master
 #
-#vrai="1"
-#firewall-cmd --add-masquerade && \
-#firewall-cmd --permanent --add-masquerade && \
-#vrai="0"
-#nom="mise en place du NAT"
-#verif
+vrai="1"
+firewall-cmd --add-masquerade && \
+firewall-cmd --permanent --add-masquerade && \
+vrai="0"
+nom="mise en place du NAT"
+verif
 #
 # Etape 10 node master
 # configuration du dhcp avec inscription dans le DNS
@@ -452,7 +430,7 @@ fi
 
 ############################################################################################
 #                                                                                          #
-#                       Déploiement des workers Kubernetes                                 #
+#                       Déploiement des workers swarm                                      #
 #                                                                                          #
 ############################################################################################
 if [ "${node}" = "worker" ]
@@ -461,11 +439,9 @@ then
 #
 #
 vrai="1"
-#firewall-cmd --set-default-zone trusted && \
-iptables -A FORWARD -i ${eth1} -j ACCEPT
-iptables -A FORWARD -o ${eth1} -j ACCEPT
-#sysctl -w net.ipv4.ip_forward=1
-#sysctl -p /etc/sysctl.conf
+yum install -y firewalld
+systemctl enable --now firewalld
+firewall-cmd --set-default-zone trusted && \
 vrai="0"
 nom="regles de firewall à trusted"
 verif
