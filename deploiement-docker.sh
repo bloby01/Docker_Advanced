@@ -268,6 +268,7 @@ nom="Construction du nom d hote et du fichier resolv.conf"
 verif
 fi
 vrai="1"
+clear
 echo -n "Collez l'URL de télechargement de Docker-EE: "
 read docker_ee && \
 vrai="0"
