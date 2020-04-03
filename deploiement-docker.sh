@@ -68,8 +68,6 @@ export DOCKERURL=${docker_ee} && \
 echo  "${DOCKERURL}/centos"  >  /etc/yum/vars/dockerurl && \
 echo  "${dockerosversion}"  >  /etc/yum/vars/dockerosversion && \
 yum-config-manager  --add-repo  "$DOCKERURL/centos/docker-ee.repo" && \
-#sed -i -e "s|enabled=1|enabled=0|g" /etc/yum.repos.d/docker-ee.repo && \
-#sed -i -e  "151 s|enabled=0|enabled=1|g" /etc/yum.repos.d/docker-ee.repo && \
 yum  install  -y   docker-ee && \
 systemctl enable  --now docker.service && \
 vrai="0"
@@ -297,7 +295,7 @@ verif
 #
 #
 vrai="1"
-eth1="enp0s8"
+#eth1="enp0s8"
 vrai="0"
 nom="parametrage de base du master"
 verif
