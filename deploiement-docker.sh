@@ -442,7 +442,7 @@ export node="worker"
 # Libre passage des flux in et out sur les interfaces réseaux
 # 
 #
-vrai ="1"
+vrai="1"
 #yum install -y firewalld
 #systemctl enable --now firewalld
 firewall-cmd --set-default-zone trusted && \
