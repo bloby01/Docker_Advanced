@@ -324,7 +324,7 @@ key DDNS_UPDATE {
   secret "bad" ;
 };
 EOF
-secret=`grep Key: /root/*.private | cut -f 2 -d " "` && \
+secret=`grep Key: ./*.private | cut -f 2 -d " "` && \
 sed -i -e "s|bad|$secret|g" /etc/named/ddns.key && \
 chown root:named /etc/named/ddns.key && \
 chmod 640 /etc/named/ddns.key && \
