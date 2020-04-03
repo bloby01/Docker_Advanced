@@ -93,7 +93,6 @@ zone 0.21.172.in-addr.arpa. {
   key DDNS_UPDATE;
 }
 option domain-name "mon.dom";
-#option domain-name-servers 172.21.0.100, 172.21.0.101, 172.21.0.102 ;
 option domain-name-servers 172.21.0.100;
 default-lease-time 600;
 max-lease-time 7200;
@@ -210,63 +209,6 @@ nom="temps"
 #                             Debut de la séquence d'Installation                                 #
 #                                                                                                 #
 ###################################################################################################
-#
-# Etape 1
-# Déclaration des variables
-#
-#
-NBR=0
-clear
-until [ "${noeud}" = "worker" -o "${noeud}" = "master" ]
-do
-echo -n 'Indiquez si cette machine doit être "master" ou "worker", mettre en toutes lettres votre réponse: '
-read noeud
-done
-if [ "${noeud}" = "worker" ]
-then
-vrai="1"
-x=0 ; until [ "${x}" -gt "0" -a "${x}" -lt "4" ] ; do echo -n "Mettez un numéro de ${noeud} à installer (1, 2 ou 3, pour ${noeud}1.mon.dom, mettre: 1 ): " ; read x ; done
-hostnamectl  set-hostname  ${noeud}${x}.mon.dom && \
-vrai="0"
-nom="selection de la carte réseau public"
-verif
-export node="worker"
-elif [ ${noeud} = "master" ]
-then
-vrai="1"
-clear
-echo ""
-echo "liste des interfaces réseaux disponibles:"
-echo ""
-echo "#########################################"
-echo "`ip link`"
-echo ""
-echo "#########################################"
-echo ""
-echo -n "Mettre le nom de l'interface réseaux du LAN: "
-read eth1 && \
-vrai="0"
-nom="Déclaration de la carte réseau interne"
-verif
-vrai="1"
-hostnamectl  set-hostname  ${noeud}.mon.dom && \
-export node="master" && \
-vrai="1"
-yum install -y firewalld
-systemctl enable --now firewalld
-firewall-cmd --set-default-zone trusted && \
-vrai="0"
-nom="regles de firewall à trusted"
-verif
-cat <<EOF > /etc/resolv.conf
-domain mon.dom
-nameserver 172.21.0.100
-nameserver 8.8.8.8
-EOF
-vrai="0"
-nom="Construction du nom d hote et du fichier resolv.conf"
-verif
-fi
 vrai="1"
 clear
 echo -n "Collez l'URL de télechargement de Docker-EE: "
@@ -288,6 +230,60 @@ EOF
 vrai="0"
 nom="contruction du fichier hosts"
 verif
+#
+#
+vrai="1"
+yum install -y firewalld
+systemctl enable --now firewalld
+vrai="0"
+nom="installation firewalld"
+verif
+#
+# Déclaration des variables
+#
+#
+NBR=0
+clear
+until [ "${noeud}" = "worker" -o "${noeud}" = "master" ]
+do
+echo -n 'Indiquez si cette machine doit être "master" ou "worker", mettre en toutes lettres votre réponse: '
+read noeud
+done
+
+if [ ${noeud} = "master" ]
+then
+vrai="1"
+clear
+echo ""
+echo "liste des interfaces réseaux disponibles:"
+echo ""
+echo "#########################################"
+echo "`ip link`"
+echo ""
+echo "#########################################"
+echo ""
+echo -n "Mettre le nom de l'interface réseaux du LAN: "
+read eth1 && \
+vrai="0"
+nom="Déclaration de la carte réseau interne"
+verif
+vrai="1"
+hostnamectl  set-hostname  ${noeud}.mon.dom && \
+export node="master" && \
+vrai="1"
+firewall-cmd --set-default-zone trusted && \
+vrai="0"
+nom="regles de firewall à trusted"
+verif
+cat <<EOF > /etc/resolv.conf
+domain mon.dom
+nameserver 172.21.0.100
+nameserver 8.8.8.8
+EOF
+vrai="0"
+nom="Construction du nom d hote et du fichier resolv.conf"
+verif
+
 ############################################################################################
 #                                                                                          #
 #                       Déploiement du master docker                                       #
@@ -298,8 +294,6 @@ verif
 # installation des services annexes.
 #
 #
-if [ "${node}" = "master" ]
-then
 vrai="1"
 eth1="enp0s8"
 vrai="0"
@@ -427,21 +421,28 @@ usermod  -aG docker stagiaire
 vrai="0"
 nom="Ajout du compte stagiaire dans le groupe docker"
 verif
-fi
+
+elif [ "${noeud}" = "worker" ]
+then
+vrai="1"
+x=0 ; until [ "${x}" -gt "0" -a "${x}" -lt "4" ] ; do echo -n "Mettez un numéro de ${noeud} à installer (1, 2 ou 3, pour ${noeud}1.mon.dom, mettre: 1 ): " ; read x ; done
+hostnamectl  set-hostname  ${noeud}${x}.mon.dom && \
+vrai="0"
+nom="selection de la carte réseau public"
+verif
+export node="worker"
 
 ############################################################################################
 #                                                                                          #
 #                       Déploiement des workers swarm                                      #
 #                                                                                          #
 ############################################################################################
-if [ "${node}" = "worker" ]
-then
 # Libre passage des flux in et out sur les interfaces réseaux
+# 
 #
-#
-vrai="1"
-yum install -y firewalld
-systemctl enable --now firewalld
+vrai ="1"
+#yum install -y firewalld
+#systemctl enable --now firewalld
 firewall-cmd --set-default-zone trusted && \
 vrai="0"
 nom="regles de firewall à trusted"
