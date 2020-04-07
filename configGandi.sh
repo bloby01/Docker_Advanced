@@ -13,6 +13,7 @@
 #  5 ) Configuration des interfaces dans les zones appropriés                  #
 #  6 ) Configuration du fichier /etc/sysconfig/gandi                           #
 #  7 ) Configurer le client dns /etc/resolv.conf t du fichier /etc/hosts       #
+#  8 ) Bloquer la fonction PostNetwork                                         #
 #                                                                              #
 ################################################################################
 
@@ -92,6 +93,53 @@ cat <<EOF > /etc/hosts
 172.21.0.111 worker2.mon.dom
 EOF
 }
+config_postnetwork() {
+cat <<EOF > /etc/sysconfig/network-scripts/ifup-post
+#!/bin/bash
+# Source the general functions for is_true() and is_false():
+. /etc/init.d/functions
+cd /etc/sysconfig/network-scripts
+. ./network-functions
+[ -f ../network ] && . ../network
+unset REALDEVICE
+if [ "$1" = --realdevice ] ; then
+    REALDEVICE=$2
+    shift 2
+fi
+CONFIG=$1
+source_config
+[ -z "$REALDEVICE" ] && REALDEVICE=$DEVICE
+if is_false "$ISALIAS"; then
+    /etc/sysconfig/network-scripts/ifup-aliases ${DEVICE} ${CONFIG}
+fi
+if ! is_true "$NOROUTESET"; then
+    /etc/sysconfig/network-scripts/ifup-routes ${REALDEVICE} ${DEVNAME}
+fi
+# don't set hostname on ppp/slip connections
+if [ "$2" = "boot" -a \
+        "${DEVICE}" != lo -a \
+        "${DEVICETYPE}" != "ppp" -a \
+        "${DEVICETYPE}" != "slip" ]; then
+    if need_hostname; then
+        IPADDR=$(LANG=C ip -o -4 addr ls dev ${DEVICE} | awk '{ print $4 ; exit }')
+        eval $(/bin/ipcalc --silent --hostname ${IPADDR} ; echo "status=$?")
+        if [ "$status" = "0" ]; then
+            set_hostname $HOSTNAME
+        fi
+    fi
+fi
+# Inform firewall which network zone (empty means default) this interface belongs to
+if [ -x /usr/bin/firewall-cmd -a "${REALDEVICE}" != "lo" ]; then
+    /usr/bin/firewall-cmd --zone="${ZONE}" --change-interface="${DEVICE}" > /dev/null 2>&1
+fi
+# Notify programs that have requested notification
+do_netreport
+if [ -x /sbin/ifup-local ]; then
+    /sbin/ifup-local ${DEVICE}
+fi
+exit 0
+EOF
+}
 ################################################################################
 #                                                                              #
 #                    Exécution code                                            #
@@ -113,6 +161,7 @@ then
 # CONFIG MASTER install de firewalld et configuration du NAT et du réseau global + MOTD
 yum install -y firewalld
 systemctl enable --now firewalld
+config_postnetwork
 config_gandi_master
 config_nat
 config_network
@@ -143,6 +192,7 @@ then
 # CONFIG WORKER install de firewalld et configuration du NAT et du réseau global + MOTD
 yum install -y firewalld
 systemctl enable --now firewalld
+config_postnetwork
 config_gandi_worker
 config_network
 config_motd
