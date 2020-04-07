@@ -84,7 +84,7 @@ config_network() {
     echo "IPV6_AUTOCONF=no" >> ${network}
     echo "DNS1=172.21.0.100" >> ${network}
     echo "DNS2=8.8.8.8" >> ${network}
-    echo "domain=mon.dom" >> ${network}
+    echo "DOMAIN=mon.dom" >> ${network}
   fi
 }
 config_hosts() {
