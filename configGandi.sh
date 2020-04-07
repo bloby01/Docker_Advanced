@@ -63,7 +63,7 @@ firewall-cmd  ---zone=trusted --add-masquerade
 config_gandi_master() {
 sed -i -e "s|CONFIG_HOSTNAME=1|CONFIG_HOSTNAME=0|g" /etc/sysconfig/gandi
 sed -i -e "s|CONFIG_NAMESERVER=1|CONFIG_NAMESERVER=0|g" /etc/sysconfig/gandi
-sed -i -e "s|CONFIG_NODHCP=""|CONFIG_NODHCP="eth0 eth1 eth2"|g" /etc/sysconfig/gandi
+sed -i -e "s|CONFIG_NODHCP=\"\"|CONFIG_NODHCP=\"eth0\ eth1\ eth2\"|g" /etc/sysconfig/gandi
 sed -i -e "s|CONFIG_NETWORK=1|CONFIG_NETWORK=0|g" /etc/sysconfig/gandi
 sed -i -e "s|CONFIG_MOTD=1|CONFIG_MOTD=0|g" /etc/sysconfig/gandi
 }
@@ -71,7 +71,7 @@ sed -i -e "s|CONFIG_MOTD=1|CONFIG_MOTD=0|g" /etc/sysconfig/gandi
 config_gandi_worker() {
 sed -i -e "s|CONFIG_HOSTNAME=1|CONFIG_HOSTNAME=0|g" /etc/sysconfig/gandi
 sed -i -e "s|CONFIG_NAMESERVER=1|CONFIG_NAMESERVER=0|g" /etc/sysconfig/gandi
-sed -i -e "s|CONFIG_NODHCP=""|CONFIG_NODHCP="eth0 eth1"|g" /etc/sysconfig/gandi
+sed -i -e "s|CONFIG_NODHCP=\"\"|CONFIG_NODHCP=\"eth0\ eth1\"|g" /etc/sysconfig/gandi
 sed -i -e "s|CONFIG_NETWORK=1|CONFIG_NETWORK=0|g" /etc/sysconfig/gandi
 sed -i -e "s|CONFIG_MOTD=1|CONFIG_MOTD=0|g" /etc/sysconfig/gandi
 }
