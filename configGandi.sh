@@ -39,7 +39,7 @@ config_motd_master() {
 cp -f MilleniumFacon /etc/motd
 }
 config_motd_worker() {
-cp -f stardeath /etc/motd
+cp -f pod /etc/motd
 }
 config_interface() {
 cat <<EOF > /etc/sysconfig/network-scripts/ifcfg-${eth}${num}
