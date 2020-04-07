@@ -140,6 +140,10 @@ fi
 exit 0
 EOF
 }
+config_iproute() {
+cat <<EOF > /etc/sysconfig/network-scripts/route-${eth}${num}
+0.0.0.0/0 via ${gateway} ${eth}${num}
+}
 ################################################################################
 #                                                                              #
 #                    Exécution code                                            #
@@ -186,6 +190,7 @@ config_hosts
     echo "DNS1=${dns1}" >> ${network}-scripts/ifcfg-${eth}${num}
     echo "DNS2=${dns2}" >> ${network}-scripts/ifcfg-${eth}${num}
     echo "DOMAIN=${domain}" >> ${network}-scripts/ifcfg-${eth}${num}
+    config_iproute
     fi
     echo "#######################################################"
     echo -n "Mettre la zone de firewall pour l'interface ${eth}${num} - ${ip} :  "
@@ -224,6 +229,7 @@ config_motd
     echo "DNS1=${dns1}" >> ${network}-scripts/ifcfg-${eth}${num}
     echo "DNS2=${dns2}" >> ${network}-scripts/ifcfg-${eth}${num}
     echo "DOMAIN=${domain}" >> ${network}-scripts/ifcfg-${eth}${num}
+    config_iproute
     fi
     echo "#######################################################"
     echo -n "Mettre la zone de firewall pour l'interface ${eth}${num} - ${ip} :  "
