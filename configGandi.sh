@@ -17,7 +17,7 @@
 ################################################################################
 
 
-# Version 1.0
+# Version 1.1
 
 ################################################################################
 #                                                                              #
@@ -28,6 +28,7 @@ dns1="172.21.0.100"
 dns2="8.8.8.8"
 domain="mon.dom"
 network="/etc/sysconfig/network"
+eth="eth"
 ################################################################################
 #                                                                              #
 #                    Déclaration fonctions                                     #
@@ -112,9 +113,11 @@ then
 # CONFIG MASTER install de firewalld et configuration du NAT et du réseau global + MOTD
 yum install -y firewalld
 systemctl enable --now firewalld
+config_gandi_master
 config_nat
 config_network
 config_motd
+config_hosts
   for num in 0 1 2
   do
     clear
@@ -135,12 +138,12 @@ config_motd
   done
 systemctl enable --now network
 systemctl restart network
-config_hosts
 elif [ "${noeud}" = "worker" ]
 then
 # CONFIG WORKER install de firewalld et configuration du NAT et du réseau global + MOTD
 yum install -y firewalld
 systemctl enable --now firewalld
+config_gandi_worker
 config_network
 config_motd
   for num in 0 1
@@ -163,5 +166,4 @@ config_motd
   done
 systemctl enable --now network
 systemctl restart network
-config_hosts
 fi
