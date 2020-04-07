@@ -79,7 +79,7 @@ echo "GATEWAY=172.21.0.100" >> ${network}
 config_network() {
   if [ -f ${network} ]
   then
-    echo "NETWORK=y" > ${network}
+    echo "NETWORKING=yes" > ${network}
     echo "NETWORKING_IPV6=no" >> ${network}
     echo "IPV6_AUTOCONF=no" >> ${network}
     echo "DNS1=172.21.0.100" >> ${network}
