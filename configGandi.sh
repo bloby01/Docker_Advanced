@@ -46,11 +46,14 @@ ONBOOT=yes
 NAME=${eth}${num}
 IPADDR=${ip}
 NETMASK=${netmask}
+if [ "${num}" = "1" ]
+then
 GATEWAY=${gateway}
-ZONE=${zone}
 DNS1=${dns1}
 DNS2=${dns2}
 DOMAIN=${domain}
+fi
+ZONE=${zone}
 IPV6INIT=no
 IPV6_AUTOCONF=no
 EOF
@@ -75,6 +78,7 @@ sed -i -e "s|CONFIG_NAMESERVER=1|CONFIG_NAMESERVER=0|g" /etc/sysconfig/gandi
 sed -i -e "s|CONFIG_NODHCP=\"\"|CONFIG_NODHCP=\"eth0\ eth1\"|g" /etc/sysconfig/gandi
 sed -i -e "s|CONFIG_NETWORK=1|CONFIG_NETWORK=0|g" /etc/sysconfig/gandi
 sed -i -e "s|CONFIG_MOTD=1|CONFIG_MOTD=0|g" /etc/sysconfig/gandi
+echo "GATEWAY=172.21.0.100" >> ${network}
 }
 
 config_network() {
@@ -83,6 +87,9 @@ config_network() {
     echo "NETWORK=y" > ${network}
     echo "NETWORKING_IPV6=no" >> ${network}
     echo "IPV6_AUTOCONF=no" >> ${network}
+    echo "DNS1=172.21.0.100" >> ${network}
+    echo "DNS2=8.8.8.8" >> ${network}
+    echo "domain=mon.dom" >> ${network}
   fi
 }
 config_hosts() {
@@ -176,9 +183,13 @@ config_hosts
     echo "#######################################################"
     echo -n "Mettre l'adresse du MSR pour l'adresse ${ip} :  "
     read netmask
+    if [ "${num}" = "1" ]
+    then
     echo "#######################################################"
     echo -n "Mettre l'adresse de passerelle pour ${eth}${num} - ${ip} :  "
     read gateway
+    echo "GATEWAY=${gateway}" >> ${network}
+    fi
     echo "#######################################################"
     echo -n "Mettre la zone de firewall pour l'interface ${eth}${num} - ${ip} :  "
     read zone
