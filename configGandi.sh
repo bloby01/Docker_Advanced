@@ -36,7 +36,7 @@ eth="eth"
 #                                                                              #
 ################################################################################
 config_motd() {
-cp MilleniumFalcon /etc/motd
+cp MilleniumFacon /etc/motd
 }
 
 config_interface() {
