@@ -35,10 +35,12 @@ eth="eth"
 #                    Déclaration fonctions                                     #
 #                                                                              #
 ################################################################################
-config_motd() {
+config_motd_master() {
 cp -f MilleniumFacon /etc/motd
 }
-
+config_motd_worker() {
+cp -f stardeath /etc/motd
+}
 config_interface() {
 cat <<EOF > /etc/sysconfig/network-scripts/ifcfg-${eth}${num}
 DEVICE=${eth}${num}
