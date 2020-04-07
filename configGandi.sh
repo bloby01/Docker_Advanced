@@ -143,6 +143,7 @@ EOF
 config_iproute() {
 cat <<EOF > /etc/sysconfig/network-scripts/route-${eth}${num}
 0.0.0.0/0 via ${gateway} ${eth}${num}
+EOF
 }
 ################################################################################
 #                                                                              #
