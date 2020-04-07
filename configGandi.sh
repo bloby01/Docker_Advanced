@@ -88,9 +88,6 @@ config_network() {
 config_hosts() {
 cat <<EOF > /etc/hosts
 127.0.0.1 localhost
-172.21.0.100 master.mon.dom
-172.21.0.110 worker1.mon.dom
-172.21.0.111 worker2.mon.dom
 EOF
 }
 config_postnetwork() {
