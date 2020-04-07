@@ -145,13 +145,14 @@ cat <<EOF > /etc/sysconfig/network-scripts/route-${eth}${num}
 0.0.0.0/0 via ${gateway} ${eth}${num}
 EOF
 }
-config_resolv.conf() {
+config_resolvconf() {
 cat <<EOF > /etc/resolv.conf
 nameserver 172.21.0.100
 nameserver 8.8.8.8
 domain mon.dom
 EOF
 }
+
 ################################################################################
 #                                                                              #
 #                    Exécution code                                            #
@@ -175,7 +176,7 @@ yum install -y firewalld
 systemctl enable --now firewalld
 config_postnetwork
 systemctl restart network
-config_resolv.conf
+config_resolvconf
 config_gandi_master
 config_nat
 config_network
@@ -217,7 +218,7 @@ yum install -y firewalld
 systemctl enable --now firewalld
 config_postnetwork
 systemctl restart network
-config_resolv.conf
+config_resolvconf
 config_gandi_worker
 config_network
 config_motd
