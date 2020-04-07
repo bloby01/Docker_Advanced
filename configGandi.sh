@@ -46,13 +46,6 @@ ONBOOT=yes
 NAME=${eth}${num}
 IPADDR=${ip}
 NETMASK=${netmask}
-if [ "${num}" = "1" ]
-then
-GATEWAY=${gateway}
-DNS1=${dns1}
-DNS2=${dns2}
-DOMAIN=${domain}
-fi
 ZONE=${zone}
 IPV6INIT=no
 IPV6_AUTOCONF=no
@@ -189,6 +182,10 @@ config_hosts
     echo -n "Mettre l'adresse de passerelle pour ${eth}${num} - ${ip} :  "
     read gateway
     echo "GATEWAY=${gateway}" >> ${network}
+    echo "GATEWAY=${gateway}" >> ${network}-scripts/ifcfg-${eth}${num}
+    echo "DNS1=${dns1}" >> ${network}-scripts/ifcfg-${eth}${num}
+    echo "DNS2=${dns2}" >> ${network}-scripts/ifcfg-${eth}${num}
+    echo "DOMAIN=${domain}" >> ${network}-scripts/ifcfg-${eth}${num}
     fi
     echo "#######################################################"
     echo -n "Mettre la zone de firewall pour l'interface ${eth}${num} - ${ip} :  "
@@ -216,15 +213,23 @@ config_motd
     echo "#######################################################"
     echo -n "Mettre l'adresse du MSR pour l'adresse ${ip} :  "
     read netmask
+    eth="eth"
+    if [ "${num}" = "1" ]
+    then
     echo "#######################################################"
     echo -n "Mettre l'adresse de passerelle pour ${eth}${num} - ${ip} :  "
     read gateway
+    echo "GATEWAY=${gateway}" >> ${network}
+    echo "GATEWAY=${gateway}" >> ${network}-scripts/ifcfg-${eth}${num}
+    echo "DNS1=${dns1}" >> ${network}-scripts/ifcfg-${eth}${num}
+    echo "DNS2=${dns2}" >> ${network}-scripts/ifcfg-${eth}${num}
+    echo "DOMAIN=${domain}" >> ${network}-scripts/ifcfg-${eth}${num}
+    fi
     echo "#######################################################"
     echo -n "Mettre la zone de firewall pour l'interface ${eth}${num} - ${ip} :  "
     read zone
-    eth="eth"
     config_interface
-  done
+done
 systemctl enable --now network
 systemctl restart network
 fi
