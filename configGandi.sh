@@ -167,6 +167,7 @@ then
 yum install -y firewalld
 systemctl enable --now firewalld
 config_postnetwork
+systemctl restart network
 config_gandi_master
 config_nat
 config_network
@@ -207,6 +208,7 @@ then
 yum install -y firewalld
 systemctl enable --now firewalld
 config_postnetwork
+systemctl restart network
 config_gandi_worker
 config_network
 config_motd
