@@ -53,14 +53,6 @@ IPV6INIT=no
 IPV6_AUTOCONF=no
 EOF
 }
-config_hosts() {
-  cat <<EOF > /etc/hosts
-  127.0.0.1 localhost
-  172.21.0.100 master.mon.dom
-  172.21.0.110 worker1.mon.dom
-  172.21.0.111 worker2.mon.dom
-  EOF
-}
 
 config_nat() {
 firewall-cmd  ---zone=trusted --add-masquerade --permanent
@@ -91,7 +83,14 @@ config_network() {
     echo "IPV6_AUTOCONF=no" >> ${network}
   fi
 }
-
+config_hosts() {
+cat <<EOF > /etc/hosts
+127.0.0.1 localhost
+172.21.0.100 master.mon.dom
+172.21.0.110 worker1.mon.dom
+172.21.0.111 worker2.mon.dom
+EOF
+}
 ################################################################################
 #                                                                              #
 #                    Exécution code                                            #
