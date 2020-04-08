@@ -81,8 +81,8 @@ IPV6_AUTOCONF=no
 EOF
 }
 config_nat() {
-firewall-cmd  ---zone=trusted --add-masquerade --permanent
-firewall-cmd  ---zone=trusted --add-masquerade
+firewall-cmd  --zone=trusted --add-masquerade --permanent
+firewall-cmd  --zone=trusted --add-masquerade
 }
 
 config_gandi_master() {
