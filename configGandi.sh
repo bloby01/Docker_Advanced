@@ -53,7 +53,31 @@ IPV6INIT=no
 IPV6_AUTOCONF=no
 EOF
 }
+config_interface0() {
+cat <<EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
+DEVICE=eth0
+ONBOOT=yes
+NAME=eth0
+IPADDR=
+NETMASK=
+ZONE=drop
+IPV6INIT=no
+IPV6_AUTOCONF=no
+EOF
+}
 
+config_interface2() {
+cat <<EOF > /etc/sysconfig/network-scripts/ifcfg-eth2
+DEVICE=eth2
+ONBOOT=yes
+NAME=eth2
+IPADDR=172.21.0.100
+NETMASK=255.255.255.0
+ZONE=trusted
+IPV6INIT=no
+IPV6_AUTOCONF=no
+EOF
+}
 config_nat() {
 firewall-cmd  ---zone=trusted --add-masquerade --permanent
 firewall-cmd  ---zone=trusted --add-masquerade
@@ -181,7 +205,7 @@ config_nat
 config_network
 config_motd
 config_hosts
-  for num in 0 1 2
+  for num in 1
   do
     clear
     echo "#######################################################"
@@ -208,6 +232,8 @@ config_hosts
     eth="eth"
     config_interface
   done
+config_interface0
+config_interface2
 systemctl enable --now network
 systemctl restart network
 elif [ "${noeud}" = "worker" ]
@@ -221,7 +247,7 @@ config_resolvconf
 config_gandi_worker
 config_network
 config_motd
-  for num in 0 1
+  for num in 1
   do
     clear
     echo "#######################################################"
@@ -248,6 +274,7 @@ config_motd
     read zone
     config_interface
 done
+config_interface0
 systemctl enable --now network
 systemctl restart network
 fi
