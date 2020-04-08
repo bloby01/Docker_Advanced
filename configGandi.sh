@@ -36,10 +36,12 @@ eth="eth"
 #                                                                              #
 ################################################################################
 config_motd_master() {
-cp -f MilleniumFacon /etc/motd
+rm -f /etc/motd
+cp MilleniumFacon /etc/motd
 }
 config_motd_worker() {
-cp -f pod /etc/motd
+rm -f /etc/motd
+cp  pod /etc/motd
 }
 config_interface() {
 cat <<EOF > /etc/sysconfig/network-scripts/ifcfg-${eth}${num}
