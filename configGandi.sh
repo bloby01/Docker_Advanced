@@ -205,7 +205,7 @@ config_resolvconf
 config_gandi_master
 config_nat
 config_network
-config_motd
+config_motd_master
 config_hosts
   for num in 1
   do
@@ -248,7 +248,7 @@ systemctl restart network
 config_resolvconf
 config_gandi_worker
 config_network
-config_motd
+config_motd_worker
   for num in 1
   do
     clear
