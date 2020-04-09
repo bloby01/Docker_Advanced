@@ -37,7 +37,7 @@ eth="eth"
 ################################################################################
 config_motd_master() {
 rm -f /etc/motd
-cp MilleniumFacon /etc/motd
+cp MilleniumFalcon /etc/motd
 }
 config_motd_worker() {
 rm -f /etc/motd
