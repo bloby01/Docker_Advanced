@@ -63,15 +63,19 @@ verif(){
 # Fonction d'installation de docker EE version 18.9
 DOCKER(){
 vrai="1"
-export dockerosversion="7"
-export DOCKERURL=${docker_ee} && \
-echo  "${DOCKERURL}/centos"  >  /etc/yum/vars/dockerurl && \
-echo  "${dockerosversion}"  >  /etc/yum/vars/dockerosversion && \
-yum-config-manager  --add-repo  "$DOCKERURL/centos/docker-ee.repo" && \
-yum  install  -y   docker-ee && \
+#export DOCKERURL=${docker_ee} && \
+#echo  "7"  >  /etc/yum/vars/dockerosversion && \
+#echo  "${DOCKERURL}/centos"  >  /etc/yum/vars/dockerurl && \
+#yum-config-manager  --add-repo  "$DOCKERURL/centos/docker-ee.repo" && \
+#sed -i -e "s|enabled=1|enabled=0|g" /etc/yum.repos.d/docker-ee.repo && \
+#sed -i -e  "151 s|enabled=0|enabled=1|g" /etc/yum.repos.d/docker-ee.repo && \
+yum install -y wget
+wget -O dockerinstall.sh https://get.docker.com
+sh dockerinstall.sh
+#yum  install  -y   docker-ee && \
 systemctl enable  --now docker.service && \
 vrai="0"
-nom="Installation de DOCKER-EE"
+nom="Déploiement de docker sur le noeud"
 verif
 }
 # Fonction de configuration des parametres communs du dhcp
@@ -209,13 +213,13 @@ nom="temps"
 #                             Debut de la séquence d'Installation                                 #
 #                                                                                                 #
 ###################################################################################################
-vrai="1"
-clear
-echo -n "Collez l'URL de télechargement de Docker-EE: "
-read docker_ee && \
-vrai="0"
-nom="recuperation de l url de docker"
-verif
+#vrai="1"
+#clear
+#echo -n "Collez l'URL de télechargement de Docker-EE: "
+#read docker_ee && \
+#vrai="0"
+#nom="recuperation de l url de docker"
+#verif
 #
 #
 # Etape 3
