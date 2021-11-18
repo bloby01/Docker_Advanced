@@ -1,12 +1,10 @@
-FROM centos:7
+FROM alpine
 LABEL MAINTAINER christophe@cmconsulting.online
-LABEL DESCRIPTION "Serveur web apache2 sur centos7 + php"
-LABEL VERSION 3.0
-RUN yum install -y httpd php
-RUN ln -s /dev/stdout /var/log/httpd/access_log
-RUN ln -s /dev/stderr /var/log/httpd/error_log
-EXPOSE 80
+LABEL DESCRIPTION "Serveur web apache2 sur alpine avec php et index.php"
+LABEL VERSION 2.0
+RUN apk add   apache2
+RUN ln -s /dev/stdout /var/log/apache2/access_log
+RUN ln -s /dev/stderr /var/log/apache2/error_log
+EXPOSE 80 443
 COPY httpd-foreground /usr/sbin/httpd-foreground
 ENTRYPOINT /usr/sbin/httpd-foreground
-WORKDIR /var/www/html/
-ADD index.php .
