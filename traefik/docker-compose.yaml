@@ -1,7 +1,7 @@
 version: '3'
 services:
   traefik:
-    image: "traefik:v2.0.0-rc3"
+    image: "traefik:v2.5.4"
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
@@ -25,7 +25,7 @@ services:
     networks:
       - traefik
     deploy:
-      replicas: 4
+      replicas: 6
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -50,6 +50,5 @@ services:
         - "traefik.http.routers.app2.rule=Host(`web2.mon.dom`)"
         - "traefik.http.routers.app2.entrypoints=web"
         - "traefik.http.services.app2.loadbalancer.server.port=80"
-
 networks:
   traefik:
