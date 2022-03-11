@@ -1716,7 +1716,7 @@ spec:
 #       persistentVolumeClaim:
 #         claimName: mon-volume-pvc
        hostPath:
-         path: /tmp/certs
+         path: /tmp
 #         path: /home/kube/traefik/certs
          type: Directory
 ---
