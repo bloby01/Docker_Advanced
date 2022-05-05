@@ -1,5 +1,5 @@
 FROM alpine
-LABEL MAINTAINER christophe@cmconsulting.online
+LABEL MAINTAINER christophe.merle@gmail.com
 LABEL DESCRIPTION "Serveur web apache2 sur alpine avec php et index.php"
 LABEL VERSION 2.0
 RUN apk add   apache2
