@@ -20,12 +20,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '6avb@5=3*%2n%mtlui*r%8f$m#1k5vfv9)s7&--2wea601-1wx'
+# Utiliser une variable d'environnement pour la SECRET_KEY
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '6avb@5=3*%2n%mtlui*r%8f$m#1k5vfv9)s7&--2wea601-1wx')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Utiliser une variable d'environnement pour DEBUG (par défaut False en production)
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ["master.mon.dom"]
+# Configuration des hôtes autorisés via variable d'environnement
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'master.mon.dom,localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -83,11 +86,11 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'HOST': 'db',
-        'PORT': '5432',
-        'PASSWORD': 'postgres'
+        'NAME': os.environ.get('POSTGRES_DB', 'postgres'),
+        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'db'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres')
     }
 }
 

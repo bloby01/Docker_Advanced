@@ -1692,8 +1692,8 @@ spec:
      - key: node-role.kubernetes.io/master
        effect: NoSchedule
      containers:
-#     - image: traefik:v2.5.5
-     - image: traefik
+     # Version mise à jour de Traefik pour Kubernetes
+     - image: traefik:v2.11
        name: traefik-ingress-lb
        imagePullPolicy: Always
        volumeMounts:

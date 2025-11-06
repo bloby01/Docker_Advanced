@@ -1,2 +1,14 @@
-Django>=3.0,<4.0
-psycopg2-binary>=2.8
+# Framework Django
+Django>=4.2,<5.0
+
+# Driver PostgreSQL
+psycopg2-binary>=2.9.9
+
+# Serveur WSGI pour production (optionnel, pour gunicorn)
+gunicorn>=21.2.0
+
+# Variables d'environnement (optionnel)
+python-decouple>=3.8
+
+# Pour le health check dans le Dockerfile
+requests>=2.31.0

@@ -1,7 +1,82 @@
 #!/bin/bash
-set -e
-rm -f /etc/httpd/run/httpd.pid
+
+# Script de démarrage pour Apache + PHP-FPM dans un conteneur Docker
+# Auteur: Christophe Merle
+# Version: 2.0
+
+set -e  # Arrêter le script en cas d'erreur
+
+# Fonction de logging
+log() {
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
+}
+
+log "Démarrage du conteneur Apache/PHP..."
+
+# Nettoyage du fichier PID d'Apache s'il existe (évite les erreurs de redémarrage)
+if [ -f /var/run/httpd/httpd.pid ]; then
+    log "Suppression du fichier PID Apache existant..."
+    rm -f /var/run/httpd/httpd.pid
+fi
+
+# Ancien chemin pour compatibilité
+if [ -f /etc/httpd/run/httpd.pid ]; then
+    log "Suppression de l'ancien fichier PID Apache..."
+    rm -f /etc/httpd/run/httpd.pid
+fi
+
+# Création et configuration du répertoire PHP-FPM
+log "Configuration de PHP-FPM..."
 mkdir -p /run/php-fpm
-chown root.apache /run/php-fpm
-/sbin/php-fpm
-/usr/sbin/httpd -DFOREGROUND
+chown root:apache /run/php-fpm
+chmod 755 /run/php-fpm
+
+# Vérification de la configuration PHP-FPM
+if [ -f /etc/php-fpm.conf ]; then
+    log "Test de la configuration PHP-FPM..."
+    if ! /usr/sbin/php-fpm -t; then
+        log "ERREUR: Configuration PHP-FPM invalide!"
+        exit 1
+    fi
+fi
+
+# Démarrage de PHP-FPM
+log "Démarrage de PHP-FPM..."
+/usr/sbin/php-fpm
+
+# Vérification que PHP-FPM est bien démarré
+sleep 1
+if ! pgrep -x "php-fpm" > /dev/null; then
+    log "ERREUR: PHP-FPM n'a pas démarré correctement!"
+    exit 1
+fi
+
+log "PHP-FPM démarré avec succès"
+
+# Vérification de la configuration Apache
+log "Test de la configuration Apache..."
+if ! /usr/sbin/httpd -t; then
+    log "ERREUR: Configuration Apache invalide!"
+    exit 1
+fi
+
+# Démarrage d'Apache en mode foreground
+log "Démarrage d'Apache en mode foreground..."
+log "Le serveur est prêt à accepter des connexions"
+
+# Fonction de nettoyage lors de l'arrêt
+cleanup() {
+    log "Signal d'arrêt reçu, nettoyage en cours..."
+    log "Arrêt de PHP-FPM..."
+    pkill -TERM php-fpm || true
+    log "Arrêt d'Apache..."
+    pkill -TERM httpd || true
+    log "Arrêt terminé"
+    exit 0
+}
+
+# Capture des signaux pour un arrêt propre
+trap cleanup SIGTERM SIGINT
+
+# Démarrage d'Apache (le processus principal du conteneur)
+exec /usr/sbin/httpd -DFOREGROUND

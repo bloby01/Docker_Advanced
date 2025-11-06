@@ -1,25 +1,55 @@
-version: '3'
+version: '3.8'
+
 services:
   traefik:
-    image: "traefik:v2.5.4"
+    image: "traefik:v2.11"
     command:
+      # API et Dashboard
       - "--api.insecure=true"
+      - "--api.dashboard=true"
+
+      # Providers
       - "--providers.docker=true"
       - "--providers.docker.swarmmode=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.network=traefik"
+
+      # Entrypoints
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+
+      # Logs
+      - "--log.level=INFO"
+      - "--accesslog=true"
+
+      # Metrics (optionnel)
+      - "--metrics.prometheus=true"
+
     ports:
       - "80:80"
+      - "443:443"
       - "8080:8080"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - traefik
     deploy:
       mode: global
       placement:
-        constraints: [node.role==manager]
+        constraints:
+          - node.role==manager
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.traefik.rule=Host(`traefik.mon.dom`)"
+        - "traefik.http.routers.traefik.service=api@internal"
+        - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+
   app:
     image: bloby01/web:v1
     networks:
@@ -30,11 +60,23 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 2
+        delay: 10s
+        order: start-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.app.rule=Host(`web1.mon.dom`)"
         - "traefik.http.routers.app.entrypoints=web"
         - "traefik.http.services.app.loadbalancer.server.port=80"
+        # Healthcheck
+        - "traefik.http.services.app.loadbalancer.healthcheck.path=/"
+        - "traefik.http.services.app.loadbalancer.healthcheck.interval=10s"
+        # Sticky sessions (optionnel)
+        - "traefik.http.services.app.loadbalancer.sticky.cookie=true"
+        - "traefik.http.services.app.loadbalancer.sticky.cookie.name=app_sticky"
+
   app2:
     image: bloby01/web:v1
     networks:
@@ -45,10 +87,24 @@ services:
         condition: on-failure
         delay: 5s
         max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 2
+        delay: 10s
+        order: start-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.app2.rule=Host(`web2.mon.dom`)"
         - "traefik.http.routers.app2.entrypoints=web"
         - "traefik.http.services.app2.loadbalancer.server.port=80"
+        # Healthcheck
+        - "traefik.http.services.app2.loadbalancer.healthcheck.path=/"
+        - "traefik.http.services.app2.loadbalancer.healthcheck.interval=10s"
+        # Sticky sessions (optionnel)
+        - "traefik.http.services.app2.loadbalancer.sticky.cookie=true"
+        - "traefik.http.services.app2.loadbalancer.sticky.cookie.name=app2_sticky"
+
 networks:
   traefik:
+    driver: overlay
+    attachable: true
