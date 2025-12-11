@@ -1,0 +1,79 @@
+#!/bin/bash
+set -e
+
+# CONFIGURATION À MODIFIER
+SERVER_HOST="master1.mon.dom"  # Nom DNS ou hostname du serveur Docker
+SERVER_IP="192.168.1.100"      # IP du serveur Docker
+CERT_DIR="./docker-certs"
+DAYS_VALID=365
+
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+echo -e "${GREEN}=== Génération des certificats Docker TLS ===${NC}"
+
+mkdir -p ${CERT_DIR}/{ca,server,client}
+cd ${CERT_DIR}
+
+# 1. CA (Certificate Authority)
+echo -e "${YELLOW}[1/6] Génération de la clé privée CA...${NC}"
+openssl genrsa -aes256 -out ca/ca-key.pem 4096
+
+echo -e "${YELLOW}[2/6] Génération du certificat CA...${NC}"
+openssl req -new -x509 -days ${DAYS_VALID} -key ca/ca-key.pem \
+    -sha256 -out ca/ca.pem \
+    -subj "/C=FR/ST=Bourgogne/L=Arcambal/O=MonEntreprise/CN=Docker-CA"
+
+# 2. Certificat serveur
+echo -e "${YELLOW}[3/6] Génération de la clé privée serveur...${NC}"
+openssl genrsa -out server/server-key.pem 4096
+
+echo -e "${YELLOW}[4/6] Génération du CSR serveur...${NC}"
+openssl req -subj "/CN=${SERVER_HOST}" -sha256 -new \
+    -key server/server-key.pem -out server/server.csr
+
+cat > server/extfile.cnf <<EOFEXT
+subjectAltName = DNS:${SERVER_HOST},IP:${SERVER_IP},IP:127.0.0.1
+extendedKeyUsage = serverAuth
+EOFEXT
+
+echo -e "${YELLOW}[5/6] Signature du certificat serveur...${NC}"
+openssl x509 -req -days ${DAYS_VALID} -sha256 \
+    -in server/server.csr -CA ca/ca.pem -CAkey ca/ca-key.pem \
+    -CAcreateserial -out server/server-cert.pem \
+    -extfile server/extfile.cnf
+
+# 3. Certificat client
+echo -e "${YELLOW}[6/6] Génération du certificat client...${NC}"
+openssl genrsa -out client/key.pem 4096
+
+openssl req -subj '/CN=docker-client' -new \
+    -key client/key.pem -out client/client.csr
+
+echo "extendedKeyUsage = clientAuth" > client/extfile-client.cnf
+
+openssl x509 -req -days ${DAYS_VALID} -sha256 \
+    -in client/client.csr -CA ca/ca.pem -CAkey ca/ca-key.pem \
+    -CAcreateserial -out client/cert.pem \
+    -extfile client/extfile-client.cnf
+
+# Nettoyage
+rm -f server/server.csr server/extfile.cnf client/client.csr client/extfile-client.cnf
+
+# Permissions
+chmod 0400 ca/ca-key.pem server/server-key.pem client/key.pem
+chmod 0444 ca/ca.pem server/server-cert.pem client/cert.pem
+
+echo -e "${GREEN}=== Certificats générés avec succès ===${NC}"
+echo ""
+ls -lR
+EOF
+
+# 2. Rendre le script exécutable
+chmod +x generate-docker-tls.sh
+
+# 3. Exécuter le script
+./generate-docker-tls.sh
+# On vous demandera un mot de passe pour la CA (à retenir!)
+```
