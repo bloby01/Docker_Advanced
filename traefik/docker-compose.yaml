@@ -1,31 +1,101 @@
-version: '3'
+#version: '3'
+#services:
+#  traefik:
+#    image: "traefik:v2.5.4"
+#    command:
+#      - "--api.insecure=true"
+#      - "--providers.docker=true"
+#      - "--providers.docker.swarmmode=true"
+#      - "--providers.docker.exposedbydefault=false"
+#      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+#      - "--entrypoints.web.address=:80"
+#    ports:
+#      - "80:80"
+#      - "8080:8080"
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#    networks:
+#      - traefik
+#    deploy:
+#      mode: global
+#      placement:
+#        constraints: [node.role==manager]
+#  app:
+#    image: bloby01/web:v1
+#    networks:
+#      - traefik
+#    deploy:
+#      replicas: 6
+#      restart_policy:
+#        condition: on-failure
+#        delay: 5s
+#        max_attempts: 3
+#      labels:
+#        - "traefik.enable=true"
+#        - "traefik.http.routers.app.rule=Host(`web1.mon.dom`)"
+#        - "traefik.http.routers.app.entrypoints=web"
+#        - "traefik.http.services.app.loadbalancer.server.port=80"
+#  app2:
+#    image: bloby01/web:v1
+#    networks:
+#      - traefik
+#    deploy:
+#      replicas: 4
+#      restart_policy:
+#        condition: on-failure
+#        delay: 5s
+#        max_attempts: 3
+#      labels:
+#        - "traefik.enable=true"
+#        - "traefik.http.routers.app2.rule=Host(`web2.mon.dom`)"
+#        - "traefik.http.routers.app2.entrypoints=web"
+#        - "traefik.http.services.app2.loadbalancer.server.port=80"
+#networks:
+#  traefik:
 services:
   traefik:
-    image: "traefik:v2.5.4"
+    image: "traefik"
     command:
+      - "--api.dashboard=true"
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.swarmmode=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.network=traefik"
       - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
     ports:
-      - "80:80"
-      - "8080:8080"
+      - target: 80
+        published: 80
+        mode: host
+      - target: 8080
+        published: 8080
+        mode: host
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - traefik
     deploy:
       mode: global
       placement:
-        constraints: [node.role==manager]
+        constraints:
+          - node.role == manager
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
   app:
     image: bloby01/web:v1
     networks:
       - traefik
     deploy:
       replicas: 6
+      update_config:
+        parallelism: 2
+        delay: 10s
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -35,12 +105,16 @@ services:
         - "traefik.http.routers.app.rule=Host(`web1.mon.dom`)"
         - "traefik.http.routers.app.entrypoints=web"
         - "traefik.http.services.app.loadbalancer.server.port=80"
+
   app2:
     image: bloby01/web:v1
     networks:
       - traefik
     deploy:
       replicas: 4
+      update_config:
+        parallelism: 2
+        delay: 10s
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -50,5 +124,8 @@ services:
         - "traefik.http.routers.app2.rule=Host(`web2.mon.dom`)"
         - "traefik.http.routers.app2.entrypoints=web"
         - "traefik.http.services.app2.loadbalancer.server.port=80"
+
 networks:
   traefik:
+    driver: overlay
+    attachable: true
